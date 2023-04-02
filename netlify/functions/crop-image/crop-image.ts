@@ -12,7 +12,7 @@ export const handler: Handler = async (event, context) => {
 
     const { width, height, x, y } = body.squares[0]
 
-    const imageUrl = 'https://relaxed-alfajores-97f344.netlify.app/paisagem.jpg';
+    const imageUrl = `${process.env.URL}/paisagem.jpg`;
     const image = await fetch(imageUrl).then(res => res.arrayBuffer());
 
     const result = await sharp(image)
