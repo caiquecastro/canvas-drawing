@@ -8,6 +8,8 @@ const squares = [];
 const bgImage = new Image();
 bgImage.src = '/paisagem.jpg';
 bgImage.addEventListener("load", () => {
+    canvas.width = bgImage.width / 5;
+    canvas.height = bgImage.height / 5;
     context.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
 }, { once: true });
 
@@ -74,4 +76,17 @@ canvas.addEventListener("mousemove", (e) => {
     context.strokeStyle = "black";
     context.setLineDash([10]);
     context.strokeRect(pathBegin.x, pathBegin.y, width, height);
+});
+
+const button = document.querySelector("button");
+
+button.addEventListener("click", async () => {
+    const response = await fetch("/.netlify/functions/crop-image", {
+        method: "POST",
+        body: JSON.stringify({
+            squares,
+        }),
+    });
+
+    console.log(await response.json());
 });
