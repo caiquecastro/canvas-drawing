@@ -11,7 +11,10 @@ export const handler: Handler = async (event, context) => {
 
     const { width, height, x, y } = body.squares[0]
 
-    const result = await sharp('/paisagem.jpg')
+    const imageUrl = 'https://relaxed-alfajores-97f344.netlify.app/paisagem.jpg';
+    const image = await fetch(imageUrl).then(res => res.arrayBuffer());
+
+    const result = await sharp(image)
       .png()
       .extract({ width: width * 5, height: height * 5, top: Math.round(y * 5), left: Math.round(x * 5) })
       .toBuffer();
