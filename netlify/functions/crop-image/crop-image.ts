@@ -11,7 +11,7 @@ export const handler: Handler = async (event, context) => {
 
     const { width, height, x, y } = body.squares[0]
 
-    const result = await sharp('./paisagem.jpg')
+    const result = await sharp('/paisagem.jpg')
       .png()
       .extract({ width: width * 5, height: height * 5, top: Math.round(y * 5), left: Math.round(x * 5) })
       .toBuffer();
