@@ -1,5 +1,6 @@
 const canvas = document.querySelector("#canvas");
 const context = canvas.getContext("2d");
+const resultImage = document.querySelector('#result');
 
 let pathBegin = null;
 
@@ -88,5 +89,11 @@ button.addEventListener("click", async () => {
         }),
     });
 
-    console.log(await response.json());
+    const buffer = await response.arrayBuffer();
+    const blob = new Blob( [ buffer ] );
+    const url = URL.createObjectURL( blob );
+
+    resultImage.src = url;
+
+    resultImage.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
 });
