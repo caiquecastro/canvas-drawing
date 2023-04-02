@@ -6,11 +6,11 @@ export const handler: Handler = async (event, context) => {
   try {
     const body = JSON.parse(event.body ?? '');
     
-    if (!body?.squares || !Array.isArray(body.squares) || !body.squares[0]) {
+    if (!body) {
       throw new Error("Invalid request");
     }
 
-    const { width, height, x, y } = body.squares[0]
+    const { width, height, x, y } = body;
 
     const imageUrl = `${process.env.URL}/paisagem.jpg`;
     const image = await fetch(imageUrl).then(res => res.arrayBuffer());

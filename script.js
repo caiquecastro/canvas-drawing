@@ -1,6 +1,7 @@
 const canvas = document.querySelector("#canvas");
 const context = canvas.getContext("2d");
-const resultImage = document.querySelector('#result');
+const button = document.querySelector("button");
+const images = document.querySelector("#result-images");
 
 let pathBegin = null;
 
@@ -42,18 +43,29 @@ canvas.addEventListener("mouseup", (e) => {
     }
 
     const canvasRect = e.target.getBoundingClientRect();
+    let sourceX = pathBegin.x;
+    let sourceY = pathBegin.y;
     const x = e.x - canvasRect.left;
     const y = e.y - canvasRect.top;
-    const width = x - pathBegin.x;
-    const height = y - pathBegin.y;
+    let width = x - pathBegin.x;
+    let height = y - pathBegin.y;
+
+    if (width < 0) {
+        width *= -1;
+        sourceX -= width;
+    }
+
+    if (height < 0) {
+        height *= -1;
+        sourceY -= height;
+    }
 
     squares.push({
-        ...pathBegin,
+        x: sourceX,
+        y: sourceY,
         width,
         height,
     });
-
-    console.log(pathBegin, width, height);
 
     clearCanvas();
     drawSquares();
@@ -79,21 +91,28 @@ canvas.addEventListener("mousemove", (e) => {
     context.strokeRect(pathBegin.x, pathBegin.y, width, height);
 });
 
-const button = document.querySelector("button");
 
 button.addEventListener("click", async () => {
-    const response = await fetch("/.netlify/functions/crop-image", {
-        method: "POST",
-        body: JSON.stringify({
-            squares,
-        }),
+    images.innerHTML = "";
+    const requests = squares.map(async ({ width, height, x, y }) => {
+        const response = await fetch("/.netlify/functions/crop-image", {
+            method: "POST",
+            body: JSON.stringify({
+                width, height, x, y,
+            }),
+        });
+    
+        const buffer = await response.arrayBuffer();
+        const blob = new Blob([buffer]);
+        const url = URL.createObjectURL(blob);
+    
+        const resultImage = document.createElement("img");
+        resultImage.src = url;
+
+        images.append(resultImage);
+    
+        resultImage.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
     });
 
-    const buffer = await response.arrayBuffer();
-    const blob = new Blob( [ buffer ] );
-    const url = URL.createObjectURL( blob );
-
-    resultImage.src = url;
-
-    resultImage.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
+    await Promise.all(requests);
 });
